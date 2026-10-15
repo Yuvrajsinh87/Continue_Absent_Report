@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+    <meta charset="UTF-8">
+    <title>ITI Ankleshwar - Continuous Absence Notice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+        }
+        /* Control Panel for User Input */
+        .control-panel {
+            max-width: 800px;
+            margin: 0 auto 20px auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .control-panel label {
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
+        .control-panel input {
+            padding: 8px 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 120px;
+            text-align: center;
+        }
+        .control-panel button {
+            padding: 9px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .control-panel button:hover {
+            background-color: #0056b3;
+        }
+        .control-panel button.print-btn {
+            background-color: #28a745;
+        }
+        .control-panel button.print-btn:hover {
+            background-color: #218838;
+        }
+
+        /* A4 Page Layout matching exact reference PDF */
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 15mm 20mm;
+            margin: 0 auto;
+            background: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+            box-sizing: border-box;
+            font-size: 14.5px;
+            line-height: 1.5;
+            color: #000;
+        }
+        
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .principal-office {
+            float: right;
+            text-align: right;
+            line-height: 1.4;
+            width: 45%;
+        }
+
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        .prati-section {
+            clear: both;
+            padding-top: 45px; /* Exactly 2 lines space below the date block */
+            width: 55%;
+        }
+
+        .subject-body {
+            text-align: justify;
+            margin-top: 20px;
+        }
+
+        .rules-list {
+            margin: 10px 0;
+            padding-left: 20px;
+            text-align: justify;
+        }
+        .rules-list li {
+            margin-bottom: 8px;
+        }
+
+        .signature-section {
+            margin-top: 70px; /* Proper space for signatures after point 7 */
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            page-break-inside: avoid;
+        }
+
+        .nakal-rawana {
+            margin-top: 35px;
+            font-size: 16px;
+            font-weight: bold;
+            page-break-inside: avoid;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+            }
+            .control-panel {
+                display: none;
+            }
+            .page {
+                box-shadow: none;
+                margin: 0;
+                width: 100%;
+                padding: 10mm 15mm;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Control Panel -->
+    <div class="control-panel">
+        <label for="rollInput">ROLL NUMBER:</label>
+        <input type="number" id="rollInput" placeholder="Enter Roll" value="1" min="1" max="96" oninput="loadTraineeData()">
+        
+        <label for="absenceDateInput">ગેરહાજર તા.:</label>
+        <input type="date" id="absenceDateInput" style="width: 140px;">
+
+        <button onclick="loadTraineeData()">LOAD DATA</button>
+        <button class="print-btn" onclick="window.print()">PRINT / PDF</button>
+    </div>
+
+    <!-- A4 Document Container -->
+    <div class="page">
+        <div class="top-header">
+            <div>BOOK POST</div>
+            <div>O.I.GS.</div>
+        </div>
+
+        <div class="clearfix">
+            <div class="principal-office">
+                ક્રમાંક / ઔતાસ / તાલીમ/<br>
+                આચાર્ય શ્રી ની કચેરી,<br>
+                ઔદ્યોગિક તાલીમ સંસ્થા, અંકલેશ્વર<br>
+                તારીખ :- <span id="noticeDate">14/10/2026</span>
+            </div>
+        </div>
+
+        <div class="prati-section">
+            પ્રતિ,<br>
+            <span id="traineeName" style="font-weight: bold;">MANISHBHAI DHARMESHBHAI VASAVA</span><br>
+            <span id="traineeAddress">PADMAVATI SOCIETY PRATHAMIK SHALA ANKLESHWAR 393001</span>
+        </div>
+
+        <div class="subject-body">
+            આપના પુત્ર / પુત્રી શ્રી <span id="traineeNameInline" style="font-weight: bold;">MANISHBHAI DHARMESHBHAI VASAVA</span> સંસ્થામાં ચાલતાં ટ્રેડ <span id="tradeName" style="font-weight: bold;">Mechanic Diesel</span> .બેચ નંબર <span id="batchNo" style="font-weight: bold;">84 A</span> .આ .મા અભ્યાસ કરે છે, તેના અનુસંધાન માં જણાવવાનું કે.<br>
+            1. આપનો પુત્ર/પુત્રી લેખિત જાણ કર્યા વગર તા. <span id="displayAbsenceDate" style="border-bottom: 1px dotted #000; padding: 0 10px; font-weight: bold;">________</span> થી સંસ્થામાં ગેરહાજર છે.
+        </div>
+
+        <ol class="rules-list" start="2">
+            <li>પુર્વ મંજુરી/જાણ વગર સતત દશ દિવસ સુધી ગેરહાજર રહેનાર તાલીમાર્થીઓના નામ સંસ્થામાંથી નિયમ મુજબ કમી કરવાપાત્ર રહે છે.</li>
+            <li>તેમણે ગેરહાજરી અંગે રજાના કોઈપણ રીપોર્ટ કે માંદગી અંગેનું પ્રમાણપત્ર રજુ કરેલ ન હોય, તેનું નામ સંસ્થામાંથી કમી કરવાપાત્ર થાય છે.</li>
+            <li>આ પત્ર મળ્યે થી દિન-૩ માં ગેરહાજરી અંગે ના પુરાવા સહીત લેખિત ખુલાશે આ સંસ્થાને કરવો, નહી તો પાછળ થી તમારી કોઈ દલીલ હકીકત ધ્યાનમાં લેવામાં આવશે નહીં.</li>
+            <li>80 ટકા કરતાં ઓછી હાજરી હશે તો તાલીમ અંતિત લેવાનાર પરીક્ષા માં બેસવા દેવામાં આવશે નહીં, તેની નોંધ લેશો.</li>
+            <li>ઉપરોક્ત વિગત ધ્યાને લઈ આપના પુત્ર/પુત્રી/પાવ્ય ને સંસ્થા ખાતે તાલીમ માં હાજર રહે તેમ સુચના આપવા નોંધ લેશો.</li>
+            <li>ઉપરોકત વિગત ધ્યાને લેતા વાલીશ્રી/પિતા એ રૂબરૂ સંસ્થા ખાતે આવી ફોરમેન ઇન્સ્ટ્રકટર / ટ્રેડ ઇન્સ્ટ્રક્ટર ને મળી જવું.</li>
+        </ol>
+
+        <div class="signature-section">
+            <div>ટ્રેડ સુ.ઈ. ની સહી :- <span id="instructorName">Yuvrajsinh K Kosamia</span></div>
+            <div>ફો.ઈ. ની સહી :-</div>
+            <div style="text-align: right;">
+                આચાર્ય (વર્ગ-૨)<br>
+                ઔ.તા.સંસ્થા અંકલેશ્વર
+            </div>
+        </div>
+
+        <div class="nakal-rawana">
+            નકલ રવાના :- ટ્રેડ ઈન્સ્ટ્રક્ટર શ્રી <span id="instructorNameCopy">Yuvrajsinh K Kosamia</span> તરફ જાણ તેમજ યોગ્ય કાર્યવાહી અર્થે.
+        </div>
+    </div>
+
+    <!-- Embedded Trainee Database (All 96 records) -->
+    <script>
+        const traineesData = [
+            { roll: 1, name: "MANISHBHAI DHARMESHBHAI VASAVA", address: "PADMAVATI SOCIETY PRATHAMIK SHALA ANKLESHWAR 393001", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 2, name: "SUJALBHAI RAMESHBHAI RATHOD", address: "NAVINAGARI DHAVAT DHAVAT 391210", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 3, name: "SIDDHARTHBHAI BALVANTBHAI PARMAR", address: "KONDH KONDH KONDH 393001", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 4, name: "MOHAMMAD MUNAF ASFAK SHAIKH", address: "202 GALAXY APARTMENT RAHMAT PARK ANKLESHWAR 393001", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 5, name: "FARHAN FIROZBHAI CHAUHAN", address: "NAVINAGARI JITALI JITALI 393001", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 6, name: "HITESH RANJEETBHAI MALI", address: "3,RAILWAY LINE ZUPADPATTI,GADKHOL 3 RAILWAY LINE ZUPADPATTI GADKHOL GADKHOL 393010", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 7, name: "DHRUVKUMAR HARESHBHAI RANA", address: "474 GUJARAT HOUSING BOARD SURTI BHAGOL ANKLESHWAR 393001", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 8, name: "AZAZ IMRAN SIDAT", address: "NAVAPARA FALIYU BHADI BHADI 394115", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 9, name: "KRISHKUMAR KAMLESHBHAI MACHHI", address: "S/O KAMLESHBHAI MACHHI HANUMAN FALIYU JHANOR 392215", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 10, name: "KRUNAL RAJNIKANT PADHIYAR", address: "BARI FALIYU NIKORA NIKORA 392030", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 11, name: "ZAKIRHUSEN LIYAKAT HUSHEN KAPADIYA", address: "C373 BARELI KHO NEAR SADHANA SCHOOL BHARUCH 392001", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 12, name: "VIVEK MAHESH RAJPUT", address: "SHREERAM CHOKRI CHAVAJ CHAVAJ 392001", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 13, name: "MOHMMAD SAJJAD MOHAMMAD SARFARAJ SHAIKH", address: "C1318 PASCHIM CHUNARWAD LAL BAJAR BHARUCH 392001", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 14, name: "RIZWANBEG MAKBULBEG MIRZA", address: "C 1495 LALBAZAR BHARUCH 392001", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 15, name: "AHMED ABDULSAMAD SEDU", address: "368 LUHAR FALIYU HATHURAN HATHURAN 394125", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 16, name: "MOHMED MUZAHID MIRFAN SHAIKH", address: "2871 GADARIYA WAD FATATELAV BHARUCH 392001", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 17, name: "AYAN YUSUFBHAI SHEKH", address: "NAVI NAGRI NABIPUR NABIPUR 392210", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 18, name: "ALFAZHHUSEN IMRANMIYA MALEK", address: "AMAN PARK SOCIETY, CHAKLASI ROAD, BHALEJ BHALEJ BHALEJ 388205", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 19, name: "HARSH KISHORRAV BORSE", address: "24 75 MARU FLAIYU RATAN TALAV BHARUCH 392001", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 20, name: "DEEPU SHANKAR SAHANI", address: "396 MEERANAGAR SARANGPUR 393001", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 21, name: "MAHAMMADFAYAZ LUKMAN ABHLI", address: "NAVI NAGRI NEAR PRIMARY SCHOOL VANTARSA 392220", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 22, name: "VISHNUBHAI RAMESHBHAI RATHVA", address: "PATEL FALIYA SINHADA SINHADA 391168", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 23, name: "MUBARAK ALTAFBHAI MAHAMMADBHAI SHEKH", address: "502 SABU STREET NABIPUR NABIPUR 392210", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 24, name: "MO REHAN SALAUDDIN KURESHI", address: "NABIPUR JIN ROAD NEAR MASJID NABIPUR 392210", trade: "Mechanic Diesel", batch: "84 A", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 25, name: "SMIT ASHWIN PATEL", address: "NAVA DIVA NAVA DIVA NAVA DIVA 393001", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 26, name: "KRIS SUNILBHAI THAKOR", address: "BHALIYAWAD NO TEKRO MAHADEV MANDIR BHARUCH 392001", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 27, name: "SAGAR SANJAY VASAVA", address: "626 KAISAR STREET KOTHI KOTHI 392020", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 28, name: "MEHULBHAI MAHESHBHAI VASAVA", address: "TEKRA FALIYU DARIYA DARIYA 393110", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 29, name: "MOHAMMADZAID JILANI QURESHI", address: "555, TAD FALIYU CHAUTA NAKA ANKLESHWAR 393001", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 30, name: "VAIBHAV KIRITBHAI PATANVADIYA", address: "DUBAI TEKRI ZADESHWAR BHARUCH 392011", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 31, name: "SOHAMSINH RAJENDRASINH SOLANKI", address: "KHADKI FALIYU ANDADA ANDADA 393010", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 32, name: "DEEPKUMAR RAJESHBHAI PATEL", address: "KUMBHAR FALIYU NANGAL NANGAL 393020", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 33, name: "ANKITKUMAR RAJUBHAI VASAVA", address: "MOTI NAVI NAGARI KARELA KARELA 392025", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 34, name: "MITKUMAR PRAVINBHAI PATEL", address: "NAVA TARIYA NAVA TARIYA ANKLESHWAR 393020", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 35, name: "YASIN AFZAL NORAT", address: "JOGIYAT FALIYU ALUNJ ALUNJ 394115", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 36, name: "HEMDIP MAHESHBHAI YADAV", address: "KHODIYAR NAGAR KHODIYAR MANDIR PASE DAHEJ 392130", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 37, name: "KARTIK HITESHBHAI RATHOD", address: "NEW RATHODVAS ANKALVA ANKALVA 393030", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 38, name: "MIHIRKUMAR JITUBHAI VASAVA", address: "BAVALI FALIYU AMRATPURA AMRATPURA 393010", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 39, name: "RUDRAKSH SHIVKANT YADAV", address: "B 66 SAI LOK RESIDENCY GADKHOL 393001", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 40, name: "CHIRAGKUMAR MUKESHBHAI PATEL", address: "KUMBHAR FALIYU NAGAL ANKLESHWAR 393020", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 41, name: "ADAM ALTAF PATEL", address: "50 51 KHADKI STREET PARIEJ PARIEJ 392020", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 42, name: "SAGARKUMAR PRAKASHBHAI VAGHARI", address: "VANTA FALIYU DENVA DENVA 392110", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 43, name: "JATIN RAKESHBHAI VASAVA", address: "SONERI TEKARI URJANAGAR JHANOR 392215", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 44, name: "MARUF YUSUF NORAT", address: "NORAT FALIYU ALUNJ ALUNJ ALUNJ 394115", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 45, name: "BHAVESH KANUBHAI VASAVA", address: "BUS STAND FALIYU BHADBHUT BHADBHUT 392012", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 46, name: "SAMIRBHAI LAXMANBHAI MEDA", address: "RAMJI FALIYU NAVI DIVI NAVI DIVI 393001", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 47, name: "ANKIT UDAYSHANKAR YADAV", address: "KUSUMGAR COLONY CHHAMUCHHAL CHHAMUCHHAL 394110", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 48, name: "NISHUKUMAR BALKISHAN MUNI", address: "KUSUMGAR COLONY CHHAMUCHHAL CHHAMUCHHAL 394110", trade: "Mechanic Diesel", batch: "84 B", instructor: "P.B.GOHIL" },
+            { roll: 49, name: "HIMLESHKUMAR SURESHBHAI VASAVA", address: "VADI FALIYU PRATHAMIK SHALA DIWA NAVA DIWA 393001", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 50, name: "AYUSHBHAI SHAMJIBHAI MAKVANA", address: "ALEX FARM HOUSE UCHHALI UCHHALI 393001", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 51, name: "RONAKKUMAR RAKESHBHAI VASAVA", address: "TALAV FALIYU KOSAMADI KOSAMADI 393001", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 52, name: "DIVYESH RAJU VASAVA", address: "SON TALAVADI BHARUCH SON TALAVADI 392001", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 53, name: "JAYNIK MUKESHBHAI PATEL", address: "AT POST UCHEDIA TA JHAGADIA DIST BHARUCH 393110", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 54, name: "VANSHITKUMAR RAMESHBHAI VASAVA", address: "NAVI VASHAHAT MOTHIYA MOTHIYA 393030", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 55, name: "KARANBHAI SANJAYBHAI VAGHARI", address: "SHUKLATIRH BHARUCH SHUKLATIRTH 392030", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 56, name: "SUJAL KUMAR VIJAY BHAI VASAVA", address: "NAVI NAGARI SHUKLATIRTH SHUK BHARUCH 392030", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 57, name: "YAGNIKBHAI JITENDRAKUMAR PANDYA", address: "28 SHREEJIJ VILLA SOCIETY ANDADA SAMOR 393010", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 58, name: "BHAVESHKUMAR DHANJIBHAI VASAVA", address: "NISHAL FALIYU NAVADIVA NAVADIVA 393001", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 59, name: "NITESH NILAMBER MISHRA", address: "73 SILVER CITY JITALI JITALI 393001", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 60, name: "DHARMESHKUMAR BABUBHAI VASAVA", address: "JUNO BHILVADO TANKARIA TANKARIA 392240", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 61, name: "KRUNALKUMAR RANJITBHAI VASAVA", address: "NANNUMIYA JUPADPATTI MAHAMMADPURA BHARUCH 392001", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 62, name: "ASHISHKUMAR DILIPBHAI MAHTO", address: "331 SUNDAR RESIDENCY RAJPIPLA ROAD ANKLESHWAR 393001", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 63, name: "ARUN AJAYBHAI VASAVA", address: "MAHAKALI FALIYU MAKTAMPURA BHARUCH 392012", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 64, name: "RAJKUMAR MAHESHBHAI VASAVA", address: "AMLA FALIYU GHODA GHODA 393135", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 65, name: "KUNALKUMAR MAHESHBHAI VASAVA", address: "NAVI NAGARI DODWADA DODWADA 393135", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 66, name: "VIRALKUMAR NARESHBHAI VASAVA", address: "MODI FARIYU NAVA KASIYA NAVA KASIYA 393001", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 67, name: "HASHNEN ARIF BABARIYA", address: "BABARIYA COLONY ADOL ROAD BHARUCH 392240", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 68, name: "TANVIR YASIN BABARIYA", address: "BABARIYA COLONY TANKARIYA BHARUCH 392240", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 69, name: "JAINUL JAVID PATEL", address: "GAM PANCHAYAT FALIYU NANDELAV NADELAV 392015", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 70, name: "RUDRAKUMAR MUKESHBHAI VASAVA", address: "OFFICE FALIYU UCHHALI UCHHALI 393001", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 71, name: "KRUNALKUMAR GANESHBHAI VASAVA", address: "OFFICE FALIYU UCHHALI UCHHALI 393001", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 72, name: "VIKRAMBHAI MUKESHBHAI VASAVA", address: "MOTALI MOTALI MOTALI 392001", trade: "Mechanic Diesel", batch: "84 C", instructor: "Yuvrajsinh K Kosamia" },
+            { roll: 73, name: "DEVANSH DHANANJAY MISHRA", address: "173 SHUKLA STREET BORBATABET BORBATABET 392012", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 74, name: "NITINBHAI VIJAYBHAI VASAVA", address: "DERA FALIYU NEAR MAHADEV TEMPLE TRALSA 392020", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 75, name: "ANURAG RAMAND CHAUHAN", address: "DANDIYABAZAR LODVANOTEKRO JOPARPATI BHARUCH BHARUCH 392001", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 76, name: "CHAITLAL ELEACHI DAS", address: "236 SHAKTINAGAR G H BOARD SHAKTINATH CIRCLE BHARUCH 392001", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 77, name: "AKASH RAMESH HARIJAN", address: "ROHIT VAS DENVA DENVA 392110", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 78, name: "SHIVAM ASHWINBHAI GOHIL", address: "MANDIR FALIYU KARMANI KARMANI 392210", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 79, name: "JAY SHAILESHBHAI VASAVA", address: "4-97 NAVAI NAGRI KAVITHA KAVITHA 392210", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 80, name: "NIKUNJBHAI NATVARBHAI VASAVA", address: "100 COLONI MAHAKALI MANDIR PANOLI 394115", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 81, name: "ARJUNBHAI RAMESHBHAI RATHOD", address: "ANKALVA ANKALVA ANKALVA 393030", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 82, name: "MOINKHAN MUSTUFAKHAN PATHAN", address: "VACHALU FALIYU SARTHAN ANKLESHWAR 393001", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 83, name: "NEEL NIRANJAN PATEL", address: "PATEL FALIYU KARJAN KARJAN 392210", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 84, name: "HARDIKBHAI HANUMANBHAI RAJPUT", address: "SON TALAVADI GUJARAT GAS COMPANY BHARUCH 392001", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 85, name: "HARSHAL KUMAR SANJAY BHAI VASAVA", address: "VADI FADIYU VADI VADI 394440", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 86, name: "SAGAR SURESHBHAI VASAVA", address: "426 NAVINAGARI SHERPURA SHERPURA 392015", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 87, name: "RANVEERBHAI SANJAYBHAI PADHIYAR", address: "UBHU FALIYU DHARMASHALA DHARMASHALA 392215", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 88, name: "PRIYANSHU JAYESHBHAI VASAVA", address: "TAKI FALIYU BHILWADA KHARCHI KHARCHI 393001", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 89, name: "TEJASHKUMAR SANJAYBHAI RATHOD", address: "91 NISHAL FALIYU BHATGAM BHATGAM 394540", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 90, name: "PRATHAM DHANSUKHBHAI RATHOD", address: "ACHARJI NO CHAL NEAR GEB BHARUCH 392001", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 91, name: "SHEHARI SAMIR SAEED", address: "HINGALAA ABAD NAGAR HINGALAA 392210", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 92, name: "SAAD YUSUF PATEL", address: "SHANKARPRA FALIYA JAMBUSAR BHADKODRA 392155", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 93, name: "ARYANKUMAR BABUBHAI VASAVA", address: "KEBIN FALIYU PANOLI PANOLI 394115", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 94, name: "RUDRA DIPAKBHAI VASAVA", address: "1666-3,LAL BUNGLOW COMPOUND OPP. D.S.P OFFICE,KARI TALAVDI BHARUCH 392001", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 95, name: "JAY GOVINDBHAI DAFDA", address: "BHARUCH BHARUCH BHARUCH 392001", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" },
+            { roll: 96, name: "REHAN ILYAS AHMAD BOBAT", address: "LIMBADA FALIYU HATHURAN LIMBADA FALIYU 394125", trade: "Mechanic Diesel", batch: "84 D", instructor: "P.B.GOHIL" }
+        ];
+
+        function loadTraineeData() {
+            const rollNum = parseInt(document.getElementById('rollInput').value);
+            const trainee = traineesData.find(t => t.roll === rollNum);
+
+            if (trainee) {
+                document.getElementById('traineeName').innerText = trainee.name;
+                document.getElementById('traineeNameInline').innerText = trainee.name;
+                document.getElementById('traineeAddress').innerText = trainee.address;
+                document.getElementById('tradeName').innerText = trainee.trade;
+                document.getElementById('batchNo').innerText = trainee.batch;
+                document.getElementById('instructorName').innerText = trainee.instructor;
+                document.getElementById('instructorNameCopy').innerText = trainee.instructor;
+            }
+
+            const absenceVal = document.getElementById('absenceDateInput').value;
+            if (absenceVal) {
+                const parts = absenceVal.split('-');
+                const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+                document.getElementById('displayAbsenceDate').innerText = formattedDate;
+            } else {
+                document.getElementById('displayAbsenceDate').innerText = '________';
+            }
+        }
+
+        window.onload = function() {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            let mm = today.getMonth() + 1;
+            let dd = today.getDate();
+            if (mm < 10) mm = '0' + mm;
+            if (dd < 10) dd = '0' + dd;
+            document.getElementById('absenceDateInput').value = `${yyyy}-${mm}-${dd}`;
+            loadTraineeData();
+            document.getElementById('absenceDateInput').addEventListener('input', loadTraineeData);
+        }
+    </script>
+</body>
+</html>
